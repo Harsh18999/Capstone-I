@@ -1,6 +1,5 @@
 
 import datetime
-import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import base64
