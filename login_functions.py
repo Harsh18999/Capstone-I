@@ -2,7 +2,6 @@ import random
 import psycopg2
 import re
 import random
-import smtplib
 conn = psycopg2.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
 cursor=conn.cursor()
 
