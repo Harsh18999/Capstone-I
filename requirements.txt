@@ -1,4 +1,0 @@
-flask==3.0.3
-datetime==5.4
-psycopg2-binary==2.9.9
-reportlab==4.1.0
