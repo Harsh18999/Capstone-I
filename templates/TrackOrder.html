@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+    
+  </head>
+  <body>
+    <div class="grid-container">
+
+      <aside id="sidebar">
+        <div class="sidebar-title">
+          <div class="sidebar-brand">
+            <span class="material-icons-outlined">shopping_cart</span> STORE
+          </div>
+          <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+        </div>
+
+        <ul class="sidebar-list">
+          <li class="sidebar-list-item">
+            <a href="/Dashboard">
+              <span class="material-icons-outlined">dashboard</span> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/My_Products" >
+              <span class="material-icons-outlined">inventory_2</span> Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#" >
+              <span class="material-icons-outlined">category</span> Track Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/add_new_order">
+              <span class="material-icons-outlined">groups</span> Add Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/edit_product" >
+              <span class="material-icons-outlined">fact_check</span> Edit Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/MonthSell">
+              <span class="material-icons-outlined" name="MonthSell" id="MonthSell">poll</span> Month Sell Analysis
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#" >
+              <span class="material-icons-outlined">settings</span> Settings
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <!-- End Sidebar -->
+
+      <!-- Main -->
+      <main class="main-container">
+        <div class="main-title" style="max-width:95%;">
+          <h2>TRACK YOUR ORDER</h2>
+        </div>
+        <div class="content" style="margin-left: 23%; margin-top: 50px; width: 500px;">
+                 {%if not customer_name %}
+                 <form action="/Track_Order" method="post">
+                     <h2 style="padding-left: 30%;">Track Order</h2>
+                     <div class="field">
+                        <label for="OrderId">Enter Product ID for Product:</label>
+                        <input type="number" name="OrderId" id="OrderId"  value="" required>
+                     </div>
+                     <br><br>
+                     <button type="submit" value="submit">Submit</button>
+                 </form>
+                 {% else %}
+                 <h2 style="margin-left: 140px;margin-bottom: 50px;">Order Details</h2>
+                 <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Customer Name :</h4>{{customer_name}}
+                </div>
+                <br>
+                <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Ordered Items   :  </h4>{% for item in order_items %}{{item}} ,{% endfor %}
+                </div>
+                <br>
+                <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Order Id :</h4>{{order_id}}
+                </div>
+                <br>
+                <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Date :</h4>{{date}}
+                </div>
+                <br>
+                <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Time :</h4>{{time}}
+                </div>
+                <br>
+                <div>
+                    <h4 style="display: inline; margin: 0;margin-right: 10px;">Total Amount :</h4>{{total_amount}}
+                </div>
+                <form action="/Track_Order/bill" method="post">
+                  <label for="customer_name"></label>
+                  <input style="display: none;" type="text" value={{customer_name}} id="customer_name" name="customer_name">
+                  <label for="order_id"></label>
+                  <input style="display: none;" type="text" value={{order_id}} id="order_id" name="order_id">
+                  <label for="date"></label>
+                  <input style="display: none;" type="text" value={{date}} id="date" name="date">
+                  <label for="time"></label>
+                  <input style="display: none;" type="text" value={{time}} id="time" name="time">
+                  <button type="submit">See Bill</button>
+                </form>
+                 {% endif %}
+        </div>
+      </main>
+      <!-- End Main -->
+
+    </div>
+    <!-- Scripts -->
+    <!-- ApexCharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
+
+    <!-- Custom JS -->
+    <!-- <script src="Dashboard.js"></script> -->
+    <script>
+      let sidebarOpen = false;
+const sidebar = document.getElementById('sidebar');
+
+function openSidebar() {
+  if (!sidebarOpen) {
+    sidebar.classList.add('sidebar-responsive');
+    sidebarOpen = true;
+  }
+}
+
+function closeSidebar() {
+  if (sidebarOpen) {
+    sidebar.classList.remove('sidebar-responsive');
+    sidebarOpen = false;
+  }
+}
+
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+  </head>
+  <body>
+    <div class="grid-container">
+
+      <aside id="sidebar">
+        <div class="sidebar-title">
+          <div class="sidebar-brand">
+            <span class="material-icons-outlined">shopping_cart</span> STORE
+          </div>
+          <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+        </div>
+
+        <ul class="sidebar-list">
+          <li class="sidebar-list-item">
+            <a href="/Dashboard">
+              <span class="material-icons-outlined">dashboard</span> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/My_Products" >
+              <span class="material-icons-outlined">inventory_2</span> Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/Track_Order" >
+              <span class="material-icons-outlined">category</span> Track Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/add_new_order">
+              <span class="material-icons-outlined">groups</span> Add Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/edit_product" >
+              <span class="material-icons-outlined">fact_check</span> Edit Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/MonthSell">
+              <span class="material-icons-outlined" name="MonthSell" id="MonthSell">poll</span> Month Sell Analysis
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#" >
+              <span class="material-icons-outlined">settings</span> Settings
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <!-- End Sidebar -->
+
+      <!-- Main -->
+      <main class="main-container">
+        <div class="main-title" style="max-width:95%;">
+          <h2>My Shop Products</h2>
+          <a href="/Add New Product">
+            <button style="margin-top: 10px; max-width: fit-content;">Add New Product</button>
+          </a>
+
+        </div>
+            <div class="table">
+              <table>
+                <tr>
+                  <th>Product_Name</th>
+                  <th>MRP</th>
+                  <th>Product_Type</th>
+                  <th>Quantity</th>
+                  <th>Product ID</th>
+                  <th>Cost Price</th>
+                  <th>Discount</th>
+              </tr>
+              {% for Product in Products %}
+              <tr>
+                  <td>{{ Product[0] }}</td>
+                  <td>{{ Product[3] }} Rs</td>
+                  <td>{{ Product[2] }}</td>
+                  <td>{{ Product[1] }}</td>
+                  <td>{{ Product[4] }}</td>
+                  <td>{{ Product[5] }} Rs</td>
+                  <td>{{ Product[6] }} %</td>
+              </tr>
+              {% endfor %}
+              </table>
+            </div>
+        </div>
+      </main>
+      <!-- End Main -->
+
+    </div>
+    <!-- Scripts -->
+    <!-- ApexCharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
+
+    <!-- Custom JS -->
+    <!-- <script src="Dashboard.js"></script> -->
+    <script>
+      let sidebarOpen = false;
+const sidebar = document.getElementById('sidebar');
+
+function openSidebar() {
+  if (!sidebarOpen) {
+    sidebar.classList.add('sidebar-responsive');
+    sidebarOpen = true;
+  }
+}
+
+function closeSidebar() {
+  if (sidebarOpen) {
+    sidebar.classList.remove('sidebar-responsive');
+    sidebarOpen = false;
+  }
+}
+
+    </script>
+  </body>
+</html>

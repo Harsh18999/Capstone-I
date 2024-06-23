@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+    <style>
+    #upper-side {
+    padding: 2em;
+    background :linear-gradient(to right , #e31c06,#effcd5);;
+    display: block;
+    color: #fff;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+  }
+  #card{
+    padding-left: 30%;
+    padding-right: 30%;
+  }
+  #checkmark {
+    font-weight: lighter;
+    fill: #fff;
+    margin: -3.5em auto auto 20px;
+  }
+  #status {
+    font-weight: lighter;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1em;
+    margin-top: -.2em;
+    margin-bottom: 0;
+  }
+  #lower-side {
+    padding: 2em 2em 5em 2em;
+    background :linear-gradient(to right , #e31c06,#effcd5);
+    display: block;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  #message {
+    margin-top: -.5em;
+    color: #ffffff;
+    letter-spacing: 1px;
+  }
+  #contBtn {
+    position: relative;
+    top: 1.5em;
+    text-decoration: none;
+    background :linear-gradient(to right , #e31c06,#effcd5);
+    color: #fff;
+    margin: auto;
+    padding: .8em 3em;
+    -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+    -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+    box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+    border-radius: 25px;
+    -webkit-transition: all .4s ease;
+          -moz-transition: all .4s ease;
+          -o-transition: all .4s ease;
+          transition: all .4s ease;
+  }
+  #contBtn:hover {
+    -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+    -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+    box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+    -webkit-transition: all .4s ease;
+          -moz-transition: all .4s ease;
+          -o-transition: all .4s ease;
+          transition: all .4s ease;
+  }
+    </style>
+</head>
+<body style="background:linear-gradient(to right , #e31c06,#effcd5) ;">
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+  </head>
+  <body>
+    <div class="grid-container">
+
+      <!-- Sidebar -->
+      <aside id="sidebar">
+        <div class="sidebar-title">
+          <div class="sidebar-brand">
+            <span class="material-icons-outlined">shopping_cart</span> STORE
+          </div>
+          <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+        </div>
+
+        <ul class="sidebar-list">
+          <li class="sidebar-list-item">
+            <a href="/Dashboard">
+              <span class="material-icons-outlined">dashboard</span> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/My_Products">
+              <span class="material-icons-outlined">inventory_2</span> Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#">
+              <span class="material-icons-outlined" >category</span> Track Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/add_new_order">
+              <span class="material-icons-outlined">groups</span> Add Order
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#" target="_blank">
+              <span class="material-icons-outlined">fact_check</span> Edit Products
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="/MonthSell">
+              <span class="material-icons-outlined" name="MonthSell" id="MonthSell">poll</span> Month Sell Analysis
+            </a>
+          </li>
+          <li class="sidebar-list-item">
+            <a href="#" target="_blank">
+              <span class="material-icons-outlined">settings</span> Settings
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <!-- End Sidebar -->
+
+      <!-- Main -->
+      <main class="main-container">
+        <div class="main-title">
+          <h2>{{ Title }}</h2>
+        </div>
+        <div id='card' class="animated fadeIn">
+          <div id='upper-side'>
+              <h1 id='status'>
+              Error
+            </h1>
+          </div>
+          <div id='lower-side'>
+            <p id='message'>
+              {{Massage}}
+            </p>
+            <a href={{cont}} id="contBtn">Continue</a>
+          </div> 
+        </div>
+        
+      </main>
+      <!-- End Main -->
+
+    </div>
+    <!-- Scripts -->
+    <!-- ApexCharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
+
+    <!-- Custom JS -->
+    <!-- <script src="Dashboard.js"></script> -->
+    <script>
+      let sidebarOpen = false;
+const sidebar = document.getElementById('sidebar');
+
+function openSidebar() {
+  if (!sidebarOpen) {
+    sidebar.classList.add('sidebar-responsive');
+    sidebarOpen = true;
+  }
+}
+
+function closeSidebar() {
+  if (sidebarOpen) {
+    sidebar.classList.remove('sidebar-responsive');
+    sidebarOpen = false;
+  }
+}
+    </script>
+  </body>
+</html>
+    
+</body>
+</html>

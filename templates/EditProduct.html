@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin Dashboard</title>
+
+  <!-- Montserrat Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+  
+</head>
+<body>
+  <div class="grid-container">
+    <aside id="sidebar">
+      <div class="sidebar-title">
+        <div class="sidebar-brand">
+          <span class="material-icons-outlined">shopping_cart</span> STORE
+        </div>
+        <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+      </div>
+      <ul class="sidebar-list">
+        <li class="sidebar-list-item">
+          <a href="/Dashboard">
+            <span class="material-icons-outlined">dashboard</span> Dashboard
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="/My_Products">
+            <span class="material-icons-outlined">inventory_2</span> Products
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="/Track_Order" >
+            <span class="material-icons-outlined">category</span> Track Orders
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="/add_new_order">
+            <span class="material-icons-outlined">groups</span> Add Order
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="/edit_product" >
+            <span class="material-icons-outlined">fact_check</span> Edit products
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="/MonthSell">
+            <span class="material-icons-outlined" name="MonthSell" id="MonthSell">poll</span> Month Sell Analysis
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="#" target="_blank">
+            <span class="material-icons-outlined">settings</span> Settings
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <!-- End Sidebar -->
+
+    <!-- Main -->
+    <main class="main-container">
+      <div class="main-title">
+        <h2>Edit Your Products 🛍️</h2>
+      </div>
+      <br>
+      <br>
+      <div>
+        <div class="content" style="margin-top: 0%;">
+            {% if not next %}
+            <form action='/edit_product/next' method="POST" >
+                <div class="field">
+                    <label for="product">Select A Product</label>
+                    <select name="product" id="product" style="margin-top: 40px;">
+                        {% for option in product_name_options %}
+                        <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select><br>
+                </div>
+                <br><br>
+                <div class="field">
+                    <label for="edit">Select What You Want to Change:</label>
+                    <select name="edit" id="edit" class="field" style=" margin-top: 40px;">
+                        <option value="PRICE">Price</option>
+                        <option value="PRODUCT_TYPE">Product Type</option>
+                        <option value="QUANTITY">Quantity</option>
+                        <option value="PRODUCT_NAME">Prodcut Name</option>
+                        <option value="DISCOUNT">Discount</option>
+                        <option value="PRODUCT_ID">Product ID</option>
+                        <option value="COST_PRICE">Cost Price</option>
+                    </select>
+                </div>
+                <br>
+                <br>
+                <button type="submit">Next</button>
+            </form>
+            {% else %}
+            <form action='/edit_product/next/save' method="POST" >
+                <div class="field">
+                    <label for="product_next">Select A Product</label>
+                    <select name="product_next" id="product_next" style="margin-top: 40px;">
+                        <option value="{{Product}}">{{Product}}</option>
+                    </select>
+                </div>
+                <br><br>
+                <div class="field">
+                    <label for="edit_type">Select What You Want to Change:</label>
+                    <select name="edit_type" id="edit_type" class="field" style="margin-top: 40px;">
+                        <option value={{Selected_Type}}>{{Selected_Type}}</option>
+                    </select>
+                </div>
+                <br><br>
+                {% if Edit=='PRODUCT_TYPE' %}
+                <div class="field">
+                    <label for="edit1">Select New Product Type:</label>
+                    <select name="edit1" id="edit1" class="field" style=" margin-top: 40px;">
+                        <option value="Weightable">Weightable</option>
+                        <option value="Countable">Countable</option>
+                    </select>
+                </div>
+                {% elif Edit=='PRODUCT_NAME' %}
+                <div class="field">
+                    <label for="edit2">Enter {{Product}} New Name :</label>
+                    <input type="text" name="edit2" id="edit2" style="margin-top: 40px;" >
+                </div>
+                {% else %}
+                <div class="field">
+                    <label for="edit3">Enter New {{Selected_Type}} :</label>
+                    <input type="number" name="edit3" id="edit3" style="margin-top: 40px;" >
+                </div>
+                {% endif %}
+                <br>
+                <br>
+                <button type="submit">Next</button>
+            </form>
+            {% endif %}
+      </div>
+    </main>
+    <!-- End Main -->
+  </div>
+  <!-- Scripts -->
+  <!-- ApexCharts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
+  <!-- Custom JS -->
+  <!-- <script src="Dashboard.js"></script> -->
+  <script>
+    let sidebarOpen = false;
+    const sidebar = document.getElementById('sidebar');
+
+    function openSidebar() {
+      if (!sidebarOpen) {
+        sidebar.classList.add('sidebar-responsive');
+        sidebarOpen = true;
+      }
+    }
+
+    function closeSidebar() {
+      if (sidebarOpen) {
+        sidebar.classList.remove('sidebar-responsive');
+        sidebarOpen = false;
+      }
+    }
+  </script>
+</body>
+</html>
