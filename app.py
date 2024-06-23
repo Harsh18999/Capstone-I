@@ -4,7 +4,6 @@ from datetime import datetime
 from database import conn,conn_str
 import login_functions
 import calendar
-import pandas as pd
 from datetime import datetime
 import random
 import psycopg2 as database
