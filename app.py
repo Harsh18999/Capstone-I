@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime
 import random
 import psycopg2 as database
-import pdfkit
+
 
 
 app = Flask(__name__)
@@ -408,32 +408,6 @@ def add_new_product():
             return render_template('AddNewProduct.html')
     else:
         False
-path_to_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-pdfkit_config = pdfkit.configuration(wkhtmltopdf=path_to_wkhtmltopdf)
-
-# @app.route('/download_pdf', methods=['GET'])
-# def download_pdf():
-    
-#     rendered_html = render_template('index.html')
-    
-#     # Create a temporary HTML file
-#     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as temp_html:
-#         temp_html.write(rendered_html.encode('utf-8'))
-#         temp_html_path = temp_html.name
-    
-#     # Generate the PDF from the HTML file
-#     pdf = pdfkit.from_file(temp_html_path,False, configuration=pdfkit_config)
-    
-#     # Remove the temporary HTML file
-#     os.remove(temp_html_path)
-    
-#     # Save the PDF to a file
-#     pdf_path = 'output.pdf'
-#     with open(pdf_path, 'wb') as f:
-#         f.write(pdf)
-    
-#     # Send the PDF file as a response
-#     return send_file(pdf_path, as_attachment=True)
 
 @app.route('/Dashboard')
 def dash():
@@ -595,4 +569,4 @@ def TrackBill():
     time=request.form['time']
     return bill_functions.main(session['track_order_data'],customer_name='Harsh',email='',order_id=order_id,date=date,time=time)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=false,host='0.0.0.0')
