@@ -1,0 +1,429 @@
+body {
+  margin: 0;
+  padding: 0;
+  /* background-color: #006b99; */
+  /* background: rgb(238,174,202); */
+/* background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%); */
+  background :linear-gradient(to right , #0083b3,#2ee0b1);
+  /* background-image: linear-gradient( 90deg ,  rgb(222, 61, 206),     red, rgb(89, 75, 198)); */
+  color: #da991f;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.material-icons-outlined {
+  vertical-align: middle;
+  line-height: 1px;
+  font-size: 35px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr 1fr;
+  grid-template-rows: 0.2fr 3fr;
+  grid-template-areas:
+    'sidebar header header header'
+    'sidebar main main main';
+  height: 100vh;
+}
+
+/* ---------- HEADER ---------- */
+.header {
+  grid-area: header;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px 0 30px;
+  box-shadow: 0 6px 7px -3px rgba(0, 0, 0, 0.35);
+}
+
+.menu-icon {
+  display: none;
+}
+
+/* ---------- SIDEBAR ---------- */
+
+#sidebar {
+  grid-area: sidebar;
+  height: 100%;
+  /* background-color: #1d2634; */
+  /* background-image: linear-gradient( 90deg ,  rgb(222, 61, 206),     red, rgb(89, 75, 198)); */
+  overflow-x: hidden;
+  /* border-right: 40px solid rgb(172, 54, 54); */
+  transition: all 0.5s;
+   overflow-y: auto;
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+}
+
+
+
+.sidebar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 30px 30px 30px;
+  margin-bottom: 30px;
+}
+
+.sidebar-title > span {
+  display: none;
+}
+
+.sidebar-brand {
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sidebar-list {
+  padding: 0;
+  margin-top: 15px;
+  list-style-type: none;
+}
+
+.sidebar-list-item {
+  padding: 20px 20px 20px 20px;
+  font-size: 18px;
+}
+
+.sidebar-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.sidebar-list-item > a {
+  text-decoration: none;
+  color: #fefeff;
+}
+
+.sidebar-responsive {
+  display: inline !important;
+  position: absolute;
+  /*
+    the z-index of the ApexCharts is 11
+    we want the z-index of the sidebar higher so that
+    the charts are not showing over the sidebar 
+    on small screens
+  */
+  z-index: 12 !important;
+}
+
+/* ---------- MAIN ---------- */
+
+.main-container {
+  grid-area: main;
+  overflow-y: auto;
+  padding: 20px 20px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.main-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.main-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 25px;
+  border-radius: 5px;
+}
+
+.card:first-child {
+  background-color: #2962ff;
+}
+
+.card:nth-child(2) {
+  background-color: #ff6d00;
+}
+
+.card:nth-child(3) {
+  background-color: #2e7d32;
+}
+
+.card:nth-child(4) {
+  background-color: #d50000;
+}
+
+.card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-inner > .material-icons-outlined {
+  font-size: 45px;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 60px;
+}
+
+.charts-card {
+
+  /* background-color: #263043; */
+  margin-bottom: 20px;
+  padding: 25px;
+  box-sizing: border-box;
+  -webkit-column-break-inside: avoid;
+  border-radius: 5px;
+  box-shadow: 0 6px 7px -4px rgba(10, 214, 204, 0.2);
+  border: 1px solid rgb(98, 10, 10);
+  padding: 20px;
+  margin: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.charts-card:hover {
+  box-shadow: 0 8px 16px 0 rgb(150, 0, 200);
+}
+.chart-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- MEDIA QUERIES ---------- */
+
+/* Medium <= 992px */
+
+@media screen and (max-width: 992px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 0.2fr 3fr;
+    grid-template-areas:
+      'header'
+      'main';
+  }
+
+  #sidebar {
+    display: none;
+  }
+
+  .menu-icon {
+    display: inline;
+  }
+
+  .sidebar-title > span {
+    display: inline;
+  }
+}
+
+/* Small <= 768px */
+
+@media screen and (max-width: 768px) {
+  .main-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
+  }
+}
+
+/* Extra Small <= 576px */
+
+@media screen and (max-width: 576px) {
+  .hedaer-left {
+    display: none;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+
+  /* justify-content: center; */
+  /* align-items: center; */
+  
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.input-group{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* width: 80%; */
+
+  /* justify-content: center; */
+  /* align-items: center; */
+  
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+
+}
+
+table {
+  width: 100%; /* Make the table take up the full width of its container */
+  border-collapse: collapse; /* Collapse the borders between table cells */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+th, td {
+  /* border: 0.5px solid #eadbdb; Add a border to the table headers and cells */
+  border-width: 0.5px; /* Add a border width to the table headers and cells */
+  border-style: dashed; /* Add a border style to the table headers and cells */
+  border-color: #e9b179; /* Add a border color to the table headers and cells */
+  text-align: left; /* Align the text in the table cells to the left */
+  vertical-align: top; /* Align the text in the table cells to the top */
+  padding: 8px; /* Add some padding to the table headers and cells */
+
+
+}
+
+th {
+  background-color: #ca622a; /* Change the background color of the table headers */
+  color: rgb(221, 206, 206); /* Change the color of the table header text */
+/* }
+
+tr:nth-child(5) {
+  background-color: #03d0c9; /* Change the background color of every other row */
+} */
+/*Basic design of login form*/
+
+.content{
+  width: 330px;
+  border-radius: 10px;
+  padding: 40px 30px;
+  margin-top: 100px;
+  box-shadow: -3px -3px 9px #aaa9a9a2,
+              3px 3px 7px rgba(147, 149, 151, 0.671);
+}
+.content form{
+  border-color: black;
+}
+/*Design the headings*/
+.content .text{
+  font-size: 25px;
+  font-weight: 600;
+  margin-bottom: 35px;
+  color: rgb(247, 233, 233);
+}
+/*Design the input spaces*/
+.content .field{
+  height: 50px;
+  width: 100%;
+  display: flex;
+  position: relative;
+}
+
+.field input{
+  margin-top: 25px;
+  height: 92%;
+  width: 100%;
+  padding-left: 45px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  color: #e0d2d2;
+  border: 1px solid rgba(255, 255, 255, 0.438);
+  border-radius: 8px;
+  background: rgba(105, 105, 105, 0);
+}
+.field select{
+  height: 92%;
+  width: 100%;
+  padding-left: 45px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  color: #e0d2d2;
+  border: 1px solid rgba(255, 255, 255, 0.438);
+  border-radius: 8px;
+  background: rgba(105, 105, 105, 0);
+}
+.field input::placeholder{
+  color: #e0d2d2a6;
+}
+.field:nth-child(2){
+  margin-top: 20px;
+}
+
+.field span{
+  position: absolute;
+  width: 50px;
+  line-height: 50px;
+  color: #ffffff;
+}
+
+.field label{
+  max-width: 300px;
+  position: absolute;
+}
+/* login button */
+button{
+  margin: 25px 0 0 0;
+  width: 250px;
+  height: 50px;
+  color: rgb(238, 226, 226);
+  font-size: 18px;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.438);
+  border-radius: 8px;
+  background: rgba(105, 105, 105, 0);
+ margin-top: 40px;
+  outline: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.content .or{
+  color: rgba(255, 255, 255, 0.733);
+  margin-top: 9px;
+}
+/* social buttons */ 
+.icon-button{
+  margin-top: 15px;
+}
+.icon-button span{
+  padding-left: 17px;
+  padding-right: 17px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+   color: rgba(244, 247, 250, 0.795);
+ border-radius: 5px;
+  line-height: 30px;
+  background: rgba(255, 255, 255, 0.164);
+    backdrop-filter: blur(10px);
+}
+
+.icon-button span.facebook{
+  margin-right: 17px;
+}
+
+button:hover,
+.icon-button span:hover{
+  background-color: #babecc8c;
+}
