@@ -2,7 +2,8 @@ import random
 import psycopg2
 import re
 import random
-conn = psycopg2.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
+import os
+conn = psycopg2.connect(os.environ["conn_str"])
 cursor=conn.cursor()
 
 alphabet_list = [chr(i) for i in range(ord('a'), ord('z')+1)]
