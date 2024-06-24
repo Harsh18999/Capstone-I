@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request,session,redirect,jsonify,url_for,send_file
 import bill_functions
 from datetime import datetime
-from database import conn,conn_str
 import login_functions
 import calendar
 from datetime import datetime
 import random
 import psycopg2 as database
+import os
 
 
-
+conn = database.connect(os.environ["conn_str"])
+conn_str=os.environ["conn_str"]
 app = Flask(__name__)
 app.secret_key = 'Secret'
 
