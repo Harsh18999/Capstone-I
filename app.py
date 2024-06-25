@@ -1,21 +1,22 @@
-from flask import Flask, render_template, request,session,redirect,jsonify,url_for,send_file
+from flask import Flask, render_template, request,session,redirect
 import bill_functions
 from datetime import datetime
 import login_functions
 import calendar
+from database import conn,conn_str
+import pandas as pd
 from datetime import datetime
 import random
 import psycopg2 as database
-import os
 
 
-conn = database.connect(os.environ["conn_str"])
 app = Flask(__name__)
 app.secret_key = 'Secret'
-
+conn = database.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
 
 @app.route('/')
 def login_page():
+
     if 'username' not in session:
         return render_template('index.html',NotLogin=True)
     
@@ -34,7 +35,7 @@ def login():
         session['bill_products']=[]
         return render_template('index.html')
     else:
-        return 'Invalid username or password'
+        return render_template('Notification.html',Title='Invalid',Massage='Invalid username or password',cont='/')
     
     
 @app.route('/add_new_order', methods=['GET', 'POST'])
@@ -71,11 +72,10 @@ def add_new_order():
         else:
             return render_template('AddNewOrder.html', options=options(session['username']),products=session['bill_products'])
     else:
-        return False
+        return render_template('Notification.html',Title='Please Log-in',Massage='Please login to access our services',cont='/')
     
 # Fetch Price Directly From Database
 def fetch_discount(username,product_name):
-    conn = database.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT DISCOUNT 
@@ -84,7 +84,6 @@ def fetch_discount(username,product_name):
     return cursor.fetchall()[0][0]
 
 def fetch_price(username, product_name):
-    conn = database.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f"SELECT PRICE FROM {username}_PRODUCT_LIST WHERE PRODUCT_NAME='{product_name}'")
     res = cursor.fetchone()
@@ -92,7 +91,6 @@ def fetch_price(username, product_name):
 
 # Capture Products list from database
 def options(username):
-    conn = database.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f"SELECT PRODUCT_NAME FROM {username}_PRODUCT_LIST")
     result=cursor.fetchall()
@@ -107,9 +105,10 @@ def selected_products(items):
     return True
 
 # Caputure Customer details
-@app.route('/add_new_order/next')
+@app.route('/add_new_order/next' ,methods=['POST'])
 def next():
-        return render_template('AddNewOrder.html',customer_details=True)
+        if request.method=='POST':
+            return render_template('AddNewOrder.html',customer_details=True)
 
 @app.route('/add_new_order/next/bill',methods=['POST'])
 def details():
@@ -128,29 +127,38 @@ def reset():
 @app.route('/add_new_order/next/bill/Confrim', methods=['POST'])
 def Confrim ():
     CustomerName='Mr '+str(request.form['customer_name'])
+    CustomerEmail=request.form['customer_email']
+    billStatus=request.form.get('bill')
+
     if CustomerName=='Mr ':
         CustomerName='Unknown'
+        
     order_id=generate_order_id()
+
     for n in session['bill_products']:
+
         cost=CostCapture(n['Product_Name'])
         if add_product(username=session['username'],customer_name=CustomerName, select_product=n['Product_Name'], price=n['Price'], quantity=n['Product_Quantity'],order_id=order_id,cost=cost*n['Product_Quantity'],net_price=n['NetPrice']):
             pass
         else:
-            conn = database.connect(os.environ["conn_str"])
             cursor=conn.cursor()
             cursor.execute(f'''
                             DELETE FROM {session['username']}_ALL_DATA
                             WHERE ORDER_ID = '{order_id}' ''')
             conn.commit()
             return Warning(massage=f'Please check the stocks of {n["Product_Name"]}',cont='/My_Products')
-        
+    if billStatus=='yes':
+        if bill_functions.send_bill(customer_email=CustomerEmail,customer_name=CustomerName,items=session['bill_products']):
+            pass
+        else:
+            return render_template('Warning.html',cont='/add_new_order/next')
     session['bill_products']=[]
     session.modified=True
     return Success(massage=f'Order Number {order_id} Successfully Saved, Thank you.',cont='/add_new_order')
+#Send Bill 
 
 # Cost capture
 def CostCapture(product):
-    conn = database.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                    SELECT COST_PRICE
@@ -162,44 +170,41 @@ def CostCapture(product):
 # Add order details on database
 
 def add_product(username,customer_name,select_product,price,quantity,order_id,cost,net_price):
+    conn = database.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
+    cursor = conn.cursor()
     current_date_time = datetime.now()
     try:
-        conn = database.connect(os.environ["conn_str"])
-        cursor = conn.cursor()
         cursor.execute(f'''
                         UPDATE {username}_PRODUCT_LIST
                         SET QUANTITY = QUANTITY-{quantity}
                         WHERE PRODUCT_NAME = '{select_product}'; ''')
         conn.commit()
-        cursor.execute(f'''
-                    INSERT INTO {username}_ALL_DATA(CUSTOMER_NAME, ORDER_NAME, PRICE, DATE, TIME, ORDER_ID,QUANTITY,COST,NET_PRICE) 
-                    VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s)
-                    ''', (customer_name, select_product, price, current_date_time.date(),current_date_time.strftime("%I:%M %p"),order_id,quantity,cost,net_price))
-        conn.commit()
-        conn.close()
-        return True
     except:
-        conn = database.connect(os.environ["conn_str"])
-        cursor=con.cursor()
+        conn=database.connect(conn_str)
+        cursor=conn.cursor()
         cursor.execute(f'''
                        DELETE FROM HARSH20_ALL_DATA
                        WHERE ORDER_ID = '{order_id}'
                        ''')
         conn.commit()
         return False
+    
+    cursor.execute(f'''
+                             INSERT INTO {username}_ALL_DATA(CUSTOMER_NAME, ORDER_NAME, PRICE, DATE, TIME, ORDER_ID,QUANTITY,COST,NET_PRICE) 
+                             VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s)
+                             ''', (customer_name, select_product, price, current_date_time.date(), current_date_time.strftime("%I:%M %p"),order_id,quantity,cost,net_price))
+    conn.commit()
+    return True
 
 def generate_order_id():
-    
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     random_number = random.randint(1000, 9999)
     order_id = f"{timestamp}{random_number}"
     return order_id
 
-
 # Edit products list in database
 @app.route('/edit_product')
 def edit_product_list():
-    conn = database.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f''' SELECT PRODUCT_NAME FROM {session['username']}_PRODUCT_LIST ''')
     result = cursor.fetchall()
@@ -231,7 +236,6 @@ def save_changes():
         return edit(product,new_val,edit_type)
 
 def edit(product,new_value,selected_type):
-    conn = database.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     if selected_type == 'PRODUCT_TYPE'or selected_type=='PRODUCT_ID' or selected_type=='PRODUCT_NAME':
                 cursor.execute(f''' UPDATE {session['username']}_PRODUCT_LIST
@@ -250,7 +254,7 @@ def edit(product,new_value,selected_type):
 # My Products
 @app.route('/My_Products')
 def My_Products():
-    conn = database.connect(os.environ["conn_str"])
+    conn=database.connect(conn_str)
     cursor=conn.cursor()
     cursor.execute(f'''SELECT * FROM {session['username']}_PRODUCT_LIST''')
     all_data=cursor.fetchall()
@@ -260,23 +264,26 @@ def My_Products():
 # Monthly Dashboard
 @app.route('/MonthSell')
 def MonthSell():
-    HistRes=Hist(session['username'])
-    LineChart=lineChart(session['username'])
-    PieChart=Pie(session['username'])
-    OrderDist=NumOrders(session['username'])
-    NumberOfOrders=NumberOrders(session['username'])
-    revpro=RevPro(session['username'])
-    return render_template('Dashboard.html',Title='CURRENT MONTH SELL DASHBOARD',Orders=Total_Orders(session['username']),Hist_labels=HistRes[0],Hist_values=HistRes[1],LineChart_labels=LineChart[0],LineChart_values=LineChart[1],PieChart1_labels=PieChart[0],PieChart1_values=PieChart[1],PieChart2_labels=OrderDist[0],PieChart2_values=OrderDist[1],Total_Orders=NumberOfOrders,Total_Revenue=revpro[0],Total_Cost=revpro[1],Total_Profit=float(revpro[0])-float(revpro[1]))
+    month=datetime.now().month
+    year=datetime.now().year
+    HistRes=Hist(session['username'],month=month,year=year)
+    LineChart=lineChart(session['username'],month=month,year=year)
+    PieChart=Pie(session['username'],month=month,year=year)
+    OrderDist=NumOrders(session['username'],month=month,year=year)
+    NumberOfOrders=NumberOrders(session['username'],month=month,year=year)
+    revpro=RevPro(session['username'],month=month,year=year)
+    Total_Revenue=round(revpro[0],2)
+    Total_Cost=round(revpro[1],2)
+    return render_template('Dashboard.html',Title='CURRENT MONTH SELL DASHBOARD',Orders=Total_Orders(session['username'],month=month,year=year),Hist_labels=HistRes[0],Hist_values=HistRes[1],LineChart_labels=LineChart[0],LineChart_values=LineChart[1],PieChart1_labels=PieChart[0],PieChart1_values=PieChart[1],PieChart2_labels=OrderDist[0],PieChart2_values=OrderDist[1],Total_Orders=NumberOfOrders,Total_Revenue=Total_Revenue,Total_Cost=Total_Cost,Total_Profit=float(Total_Revenue)-float(Total_Cost))
 
 
-def Hist(username):
-    conn = database.connect(os.environ["conn_str"])
+def Hist(username,month,year):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT ORDER_NAME,SUM(PRICE)
-FROM {username}_ALL_DATA
-WHERE EXTRACT(MONTH FROM DATE )= {datetime.now().month}
-GROUP BY ORDER_NAME
+                   SELECT ORDER_NAME,SUM(PRICE)
+                   FROM {username}_ALL_DATA
+                   WHERE EXTRACT(MONTH FROM DATE )= {month} AND EXTRACT(YEAR FROM DATE)= {year}
+                   GROUP BY ORDER_NAME
     ''')
     labels=[]
     values=[]
@@ -286,83 +293,79 @@ GROUP BY ORDER_NAME
     return [labels,values]
 
 
-def lineChart(username):
-    conn = database.connect(os.environ["conn_str"])
+def lineChart(username,month,year):
     cursor=conn.cursor()
     labels=[]
     values=[]
-    date=f'{datetime.now().year}-{datetime.now().month}-'
-    days=calendar.monthrange(datetime.now().year,datetime.now().month)[1]
+    date=f'{year}-{month}-'
+    days=calendar.monthrange(year,month)[1]
     for i in range(1,days+1):
         cursor.execute(f'''
-    SELECT SUM(price)
-    FROM {username}_ALL_DATA
-    WHERE DATE = '{date+str(i)}'  ''')
+                        SELECT SUM(price)
+                        FROM {username}_ALL_DATA
+                        WHERE DATE = '{date+str(i)}'  ''')
         total=cursor.fetchall()[0][0]
         if not total:
             total=0
         labels.append(f'{date+str(i)}')
         values.append(total)
+
     return [labels,values]
 
 
-def Total_Orders(username):
-    conn = database.connect(os.environ["conn_str"])
+def Total_Orders(username,month,year):
     cursor=conn.cursor()
     TotalData=[]
-    query = f'''SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE EXTRACT(MONTH FROM DATE )= {datetime.now().month} '''
+    query = f''' SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE EXTRACT(MONTH FROM DATE )= {month} AND EXTRACT(YEAR FROM DATE)= {year} '''
     cursor.execute(query)
     result=cursor.fetchall()
     for n in result:
         n=list(n)
         dic={"CUSTOMER_NAME":n[0],"ORDER_NAME":n[1],"PRICE":n[2],"ORDER_ID":n[3],"DATE":n[4],"TIME":n[5],"QUANTITY":n[6]}
         TotalData.append(dic)
-    
+
     return TotalData
 
-def Pie(username):
-    conn = database.connect(os.environ["conn_str"])
+def Pie(username,month,year):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS INTEGER)-CAST(SUM(COST) AS INTEGER)
-FROM {username}_ALL_DATA
-WHERE EXTRACT(MONTH FROM DATE)={datetime.now().month}
-GROUP BY ORDER_NAME''')
+    SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS INTEGER)-CAST(SUM(COST) AS INTEGER)
+    FROM {username}_ALL_DATA
+    WHERE EXTRACT(MONTH FROM DATE)={month} AND EXTRACT(YEAR FROM DATE)= {year}
+    GROUP BY ORDER_NAME''')
     d=cursor.fetchall()
     d=dict(d)
     return [list(d.keys()),list(d.values())]
 
-def NumOrders(username):
-    conn = database.connect(os.environ["conn_str"])
+def NumOrders(username,month,year):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT ORDER_NAME,COUNT(ORDER_ID)
-FROM {username}_ALL_DATA
-WHERE EXTRACT(MONTH FROM DATE)={datetime.now().month}
-GROUP BY ORDER_NAME''')
+    SELECT ORDER_NAME,COUNT(ORDER_ID)
+    FROM {username}_ALL_DATA
+    WHERE EXTRACT(MONTH FROM DATE)={month} AND EXTRACT(YEAR FROM DATE)= {year}
+    GROUP BY ORDER_NAME''')
     d=dict(cursor.fetchall())
     return [list(d.keys()),list(d.values())]
 
-def NumberOrders(username):
-    conn = database.connect(os.environ["conn_str"])
+def NumberOrders(username,month,year):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT COUNT(DISTINCT(ORDER_ID))
-FROM {username}_ALL_DATA ''')
+    SELECT COUNT(DISTINCT(ORDER_ID))
+    FROM {username}_ALL_DATA 
+    WHERE EXTRACT(MONTH FROM DATE)={month} AND EXTRACT(YEAR FROM DATE)= {year}''')
     return cursor.fetchall()[0][0]
 
-def RevPro(username):
-    conn = database.connect(os.environ["conn_str"])
+def RevPro(username,month,year):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT SUM(PRICE)
-FROM {username}_ALL_DATA
-WHERE EXTRACT(MONTH FROM DATE)={datetime.now().month}''')
+    SELECT SUM(PRICE)
+    FROM {username}_ALL_DATA
+    WHERE EXTRACT(MONTH FROM DATE)={month} AND EXTRACT(YEAR FROM DATE)= {year} ''')
     revenue=cursor.fetchall()[0][0]
     cursor.execute(f'''
-SELECT SUM(COST)
-FROM {username}_ALL_DATA
-WHERE EXTRACT(MONTH FROM DATE)={datetime.now().month}''')
+    SELECT SUM(COST)
+    FROM {username}_ALL_DATA
+    WHERE EXTRACT(MONTH FROM DATE)={month} AND EXTRACT(YEAR FROM DATE)= {year} ''')
     cost=cursor.fetchall()[0][0]
     return [revenue,cost]
 
@@ -377,84 +380,105 @@ def add_new_product():
             Discount=request.form['Discount']
             CostPrice=request.form['CostPrice']
             ProductType=request.form['ProductType']
-            conn = database.connect(os.environ["conn_str"])
             cursor=conn.cursor()
             cursor.execute(f'''
                             INSERT INTO {session['username']}_PRODUCT_LIST
-                        (PRODUCT_NAME,PRICE,PRODUCT_ID,QUANTITY,DISCOUNT,COST_PRICE,PRODUCT_TYPE) VALUES ('{ProductName}',{Price},{ProductId},{Quantity},{Discount},{CostPrice},'{ProductType}')''')
+                            (PRODUCT_NAME,PRICE,PRODUCT_ID,QUANTITY,DISCOUNT,COST_PRICE,PRODUCT_TYPE) VALUES ('{ProductName}',{Price},{ProductId},{Quantity},{Discount},{CostPrice},'{ProductType}')''')
             conn.commit() 
-            return f'Successfully {ProductName} Saved ' 
+            return render_template('SuccessMassage.html',Massage=f'{ProductName} Successfully saved',cont='/My_Products')
         else:
             return render_template('AddNewProduct.html')
     else:
-        False
+        return render_template('Notification.html',Title='Please Log-in',Massage='Please login to access our services',cont='/')
+
+#path_to_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+#pdfkit_config = pdfkit.configuration(wkhtmltopdf=path_to_wkhtmltopdf)
+
+# @app.route('/download_pdf', methods=['GET'])
+# def download_pdf():
+    
+#     rendered_html = render_template('index.html')
+    
+#     # Create a temporary HTML file
+#     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as temp_html:
+#         temp_html.write(rendered_html.encode('utf-8'))
+#         temp_html_path = temp_html.name
+    
+#     # Generate the PDF from the HTML file
+#     pdf = pdfkit.from_file(temp_html_path,False, configuration=pdfkit_config)
+    
+#     # Remove the temporary HTML file
+#     os.remove(temp_html_path)
+    
+#     # Save the PDF to a file
+#     pdf_path = 'output.pdf'
+#     with open(pdf_path, 'wb') as f:
+#         f.write(pdf)
+    
+#     # Send the PDF file as a response
+#     return send_file(pdf_path, as_attachment=True)
 
 @app.route('/Dashboard')
 def dash():
-    orders=Orders(session['username'])
-    Hist=TopSelling_Product(session['username'])
-    pie1=PieOne(session['username'])
-    pie2=PieTwo(session['username'])
-    line_chart=today_sell_linechart(username=session['username'],start_time='00:00:00',end_time='23:00:00',time_gap=2)
-    revpro=TodayRevPro(session['username'])
-    Total_Revenue=revpro[0]
-    Total_Cost=revpro[1]
+    current_date=datetime.now().date()
+    orders=Orders(session['username'],current_date)
+    Hist=TopSelling_Product(session['username'],current_date)
+    pie1=PieOne(username=session['username'],date=current_date)
+    pie2=PieTwo(session['username'],date=current_date)
+    line_chart=today_sell_linechart(username=session['username'],start_time='00:00:00',end_time='23:00:00',time_gap=2,date=current_date)
+    revpro=TodayRevPro(session['username'],current_date)
+    Total_Revenue=round(revpro[0],2) if revpro[0] else 0
+    Total_Cost=round(revpro[1],2) if revpro[1] else 0
     Total_Profit=Total_Revenue-Total_Cost
-    Total_Orders=TodayNumberOrders(session['username'])
-    return render_template('Dashboard.html',Title='TODAY SELL DASHBOARD',Hist_labels=Hist[0],Hist_values=Hist[1],LineChart_labels=line_chart[0],LineChart_values=line_chart[1],PieChart1_labels=pie1[0],PieChart1_values= pie1[1],PieChart2_labels=pie2[0],PieChart2_values=pie2[1],Total_Revenue=revpro[0],Total_Cost=revpro[1],Total_Orders=Total_Orders,Total_Profit=Total_Profit,Orders=orders)
+    Total_Orders=TodayNumberOrders(session['username'],current_date)
+    return render_template('Dashboard.html',Title='TODAY SELL DASHBOARD',Hist_labels=Hist[0],Hist_values=Hist[1],LineChart_labels=line_chart[0],LineChart_values=line_chart[1],PieChart1_labels=pie1[0],PieChart1_values= pie1[1],PieChart2_labels=pie2[0],PieChart2_values=pie2[1],Total_Revenue=Total_Revenue,Total_Cost=Total_Cost,Total_Orders=Total_Orders,Total_Profit=round(Total_Profit,2),Orders=orders)
 
-def PieOne(username):
-    conn = database.connect(os.environ["conn_str"])
+def PieOne(username,date):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS FLOAT)-CAST(SUM(COST) AS FLOAT)
-FROM {username}_ALL_DATA
-WHERE DATE= '{datetime.now().date()}'
-GROUP BY ORDER_NAME''')
+                    SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS FLOAT)-CAST(SUM(COST) AS FLOAT)
+                    FROM {username}_ALL_DATA
+                    WHERE DATE= '{date}'
+                    GROUP BY ORDER_NAME ''')
     d=cursor.fetchall()
     d=dict(d)
     return [list(d.keys()),list(d.values())]
 
-def PieTwo(username):
-    conn = database.connect(os.environ["conn_str"])
+def PieTwo(username,date):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT ORDER_NAME,COUNT(ORDER_ID)
-FROM {username}_ALL_DATA
-WHERE DATE= '{datetime.now().date()}'
-GROUP BY ORDER_NAME''')
+                    SELECT ORDER_NAME,COUNT(ORDER_ID)
+                    FROM {username}_ALL_DATA
+                    WHERE DATE= '{date}'
+                    GROUP BY ORDER_NAME''')
     d=dict(cursor.fetchall())
     return [list(d.keys()),list(d.values())]
 
-def TodayNumberOrders(username):
-    conn = database.connect(os.environ["conn_str"])
+def TodayNumberOrders(username,date):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT COUNT(DISTINCT(ORDER_ID))
-FROM {username}_ALL_DATA
-WHERE DATE = '{datetime.now().date()}' ''')
+                    SELECT COUNT(DISTINCT(ORDER_ID))
+                    FROM {username}_ALL_DATA
+                    WHERE DATE = '{date}' ''')
     return cursor.fetchall()[0][0]
 
-def TodayRevPro(username):
-    conn = database.connect(os.environ["conn_str"])
+def TodayRevPro(username,date):
     cursor=conn.cursor()
     cursor.execute(f'''
-SELECT SUM(NET_PRICE)
-FROM {username}_ALL_DATA
-WHERE DATE= '{datetime.now().date()}' ''')
+                    SELECT SUM(NET_PRICE)
+                    FROM {username}_ALL_DATA
+                    WHERE DATE= '{date}' ''')
     revenue=cursor.fetchall()[0][0]
     cursor.execute(f'''
-SELECT SUM(COST)
-FROM {username}_ALL_DATA
-WHERE DATE= '{datetime.now().date()}'  ''')
+                   SELECT SUM(COST)
+                   FROM {username}_ALL_DATA
+                   WHERE DATE= '{date}'  ''')
     cost=cursor.fetchall()[0][0]
     return [revenue,cost]
 
 # Capture values for linechart from database
-def today_sell_linechart(username,start_time='00:00:00',end_time='23:00:00',time_gap=1):
-    conn = database.connect(os.environ["conn_str"])
+def today_sell_linechart(username,date,start_time='00:00:00',end_time='23:00:00',time_gap=1):
     cursor=conn.cursor()
-    current_date=str(datetime.now().date())
     Time=[]
     Sell=[]
     start=start_time
@@ -473,8 +497,8 @@ def today_sell_linechart(username,start_time='00:00:00',end_time='23:00:00',time
             pt=str(time)
             nt=str(time+time_gap)
         cursor.execute(f''' SELECT SUM(Price) AS Total_Price
-                        FROM {username}_all_data
-                        WHERE date = '{current_date}' AND time BETWEEN '{str(pt)+str(':00:00')}' AND '{str(nt)+str(':00:00')}';
+                            FROM {username}_all_data
+                            WHERE date = '{date}' AND time BETWEEN '{str(pt)+str(':00:00')}' AND '{str(nt)+str(':00:00')}';
                    ''')
         result=cursor.fetchall()
         for m in result:
@@ -486,11 +510,12 @@ def today_sell_linechart(username,start_time='00:00:00',end_time='23:00:00',time
                 Time.append(pt+':00'+' to '+nt+':00')
         time+=time_gap
     return [Time,Sell]
-def Orders(username):
-    conn = database.connect(os.environ["conn_str"])
+
+
+def Orders(username,date):
     cursor=conn.cursor()
     Orders=[]
-    query = f'''SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE DATE = '{datetime.now().date()}' '''
+    query = f'''SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE DATE = '{date}' '''
     cursor.execute(query)
     result=cursor.fetchall()
     for n in result:
@@ -499,14 +524,14 @@ def Orders(username):
         Orders.append(dic)
     return Orders
 
-def TopSelling_Product (username):
+
+def TopSelling_Product (username,date):
     labels=[]
     values=[]
-    conn = database.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f''' SELECT order_name,SUM(NET_PRICE) AS Total_Price
                         FROM {username}_all_data
-                        WHERE date = '{datetime.now().date()}'
+                        WHERE date = '{date}'
                         GROUP BY order_name
                         ORDER BY SUM(NET_PRICE) DESC;
                    ''')
@@ -516,27 +541,31 @@ def TopSelling_Product (username):
         values.append(k[1])
     return [labels,values]
 
+
+
 @app.route('/Success')
 def Success(massage,cont):
     return render_template('SuccessMassage.html',Massage=massage,cont=cont)
 
+
+
 @app.route('/Warning')
 def Warning(massage,cont):
     return render_template('Warning.html',Massage=massage,cont=cont)
+
 
 @app.route('/Track_Order' ,methods=['GET','POST'])
 def Track():
     if request.method!='POST':
         return render_template('TrackOrder.html')
     order_id=request.form['OrderId']
-    conn = database.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT * FROM {session['username']}_ALL_DATA
                     WHERE ORDER_ID = '{order_id}' ''')
     res=cursor.fetchall()
     if res==[]:
-        return 'Order is not exist'
+        return render_template('Warning.html',Massage='Order is not exist',cont='/Track_Order')
     track_order_data=[]
     customer_name=res[0][0]
     date=res[0][4]
@@ -550,12 +579,58 @@ def Track():
     session['track_order_data']=track_order_data
     return render_template('TrackOrder.html',customer_name=customer_name,order_items=order_items,order_id=order_id,date=date,time=time,total_amount=total_amount)
 
+
 @app.route('/Track_Order/bill', methods=['POST'])
 def TrackBill():
     customer_name=request.form['customer_name']
     order_id=request.form['order_id']
     date=request.form['date']
     time=request.form['time']
-    return bill_functions.main(session['track_order_data'],customer_name='Harsh',email='',order_id=order_id,date=date,time=time)
+    return bill_functions.main(session['track_order_data'],customer_name=customer_name,email='',order_id=order_id,date=date,time=time)
+
+
+@app.route('/another_day_sell',methods=['POST','GET'])
+def AnotherDaySell():
+    if 'username' in session:
+        if request.method=='POST':
+            current_date=request.form['date']
+            orders=Orders(session['username'],current_date)
+            Hist=TopSelling_Product(session['username'],current_date)
+            pie1=PieOne(username=session['username'],date=current_date)
+            pie2=PieTwo(session['username'],date=current_date)
+            line_chart=today_sell_linechart(username=session['username'],start_time='00:00:00',end_time='23:00:00',time_gap=2,date=current_date)
+            revpro=TodayRevPro(session['username'],current_date)
+            Total_Revenue=revpro[0] if revpro[0] else 0
+            Total_Cost=revpro[1] if revpro[1] else 0
+            Total_Profit=Total_Revenue-Total_Cost
+            Total_Orders=TodayNumberOrders(session['username'],current_date)
+            return render_template('Dashboard.html',Title=current_date,Hist_labels=Hist[0],Hist_values=Hist[1],LineChart_labels=line_chart[0],LineChart_values=line_chart[1],PieChart1_labels=pie1[0],PieChart1_values= pie1[1],PieChart2_labels=pie2[0],PieChart2_values=pie2[1],Total_Revenue=revpro[0],Total_Cost=revpro[1],Total_Orders=Total_Orders,Total_Profit=Total_Profit,Orders=orders)
+        
+        return render_template('AnotherDaySell.html')
+    
+    return render_template('Notification.html',Title='Please Log-in',Massage='Please login to access our services',cont='/')
+    
+
+@app.route('/another_month_sell',methods=['POST','GET'])
+def AnotherMonthSell():
+    if 'username' in session:
+        if request.method=='POST':
+            month=request.form['month']
+            year=int(month[:4])
+            month=int(month[5:])
+            HistRes=Hist(session['username'],month=month,year=year)
+            LineChart=lineChart(session['username'],month=month,year=year)
+            PieChart=Pie(session['username'],month=month,year=year)
+            OrderDist=NumOrders(session['username'],month=month,year=year)
+            NumberOfOrders=NumberOrders(session['username'],month=month,year=year)
+            revpro=RevPro(session['username'],month=month,year=year)
+            Total_Revenue=revpro[0] if revpro[0] else 0
+            Total_Cost=revpro[1] if revpro[1] else 0
+            return render_template('Dashboard.html',Title=f'{month}-{year}',Orders=Total_Orders(session['username'],month=month,year=year),Hist_labels=HistRes[0],Hist_values=HistRes[1],LineChart_labels=LineChart[0],LineChart_values=LineChart[1],PieChart1_labels=PieChart[0],PieChart1_values=PieChart[1],PieChart2_labels=OrderDist[0],PieChart2_values=OrderDist[1],Total_Orders=NumberOfOrders,Total_Revenue=round(Total_Revenue,2),Total_Cost=round(Total_Cost,2),Total_Profit=round(float(Total_Revenue)-float(Total_Cost),2))
+        
+        return render_template('AnotherMonthSell.html')
+    
+    return render_template('Notification.html',Title='Please Log-in',Massage='Please login to access our services',cont='/')
+ 
 if __name__ == '__main__':
-    app.run(debug=false,host='0.0.0.0')
+    app.run(debug=True)
