@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+    body {
+        background :linear-gradient(to right , #0083b3,#2ee0b1);;
+    }
+    #upper-side {
+      padding: 2em;
+      background :linear-gradient(to right , #0083b3,#2ee0b1);;
+      display: block;
+      color: #fff;
+      border-top-right-radius: 8px;
+      border-top-left-radius: 8px;
+    }
+    #card{
+      padding-left: 30%;
+      padding-right: 30%;
+    }
+    #checkmark {
+      font-weight: lighter;
+      fill: #fff;
+      margin: -3.5em auto auto 20px;
+    }
+    #status {
+      font-weight: lighter;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 1em;
+      margin-top: -.2em;
+      margin-bottom: 0;
+    }
+    #lower-side {
+      padding: 2em 2em 5em 2em;
+      background :linear-gradient(to right , #0083b3,#2ee0b1);;
+      display: block;
+      border-bottom-right-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+    #message {
+      margin-top: -.5em;
+      color: #ffffff;
+      letter-spacing: 1px;
+    }
+    #contBtn {
+      position: relative;
+      top: 1.5em;
+      text-decoration: none;
+      background :linear-gradient(to right , #0083b3,#2ee0b1);
+      color: #fff;
+      margin: auto;
+      padding: .8em 3em;
+      -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+      -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+      box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
+      border-radius: 25px;
+      -webkit-transition: all .4s ease;
+            -moz-transition: all .4s ease;
+            -o-transition: all .4s ease;
+            transition: all .4s ease;
+    }
+    #contBtn:hover {
+      -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+      -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+      box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
+      -webkit-transition: all .4s ease;
+            -moz-transition: all .4s ease;
+            -o-transition: all .4s ease;
+            transition: all .4s ease;
+    }
+      </style>
+</head>
+<body>
+    <div id='card' class="animated fadeIn" style="margin-top: 100px;">
+        <div id='upper-side'>
+          <?xml version="1.0" encoding="utf-8"?>
+            <!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+            <h1 id='status'>
+            {{Title}}
+          </h1>
+        </div>
+        <div id='lower-side'>
+          <p id='message'>
+            {{Massage}}
+          </p>
+          <a href={{cont}} id="contBtn">Continue</a>
+        </div> 
+</body>
+</html>
