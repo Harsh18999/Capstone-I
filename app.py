@@ -3,7 +3,6 @@ import bill_functions
 from datetime import datetime
 import login_functions
 import calendar
-from database import conn,conn_str
 import pandas as pd
 from datetime import datetime
 import random
@@ -12,11 +11,10 @@ import psycopg2 as database
 
 app = Flask(__name__)
 app.secret_key = 'Secret'
-conn = database.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
 
 @app.route('/')
 def login_page():
-
+    
     if 'username' not in session:
         return render_template('index.html',NotLogin=True)
     
@@ -76,6 +74,7 @@ def add_new_order():
     
 # Fetch Price Directly From Database
 def fetch_discount(username,product_name):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT DISCOUNT 
@@ -84,6 +83,7 @@ def fetch_discount(username,product_name):
     return cursor.fetchall()[0][0]
 
 def fetch_price(username, product_name):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f"SELECT PRICE FROM {username}_PRODUCT_LIST WHERE PRODUCT_NAME='{product_name}'")
     res = cursor.fetchone()
@@ -91,6 +91,7 @@ def fetch_price(username, product_name):
 
 # Capture Products list from database
 def options(username):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f"SELECT PRODUCT_NAME FROM {username}_PRODUCT_LIST")
     result=cursor.fetchall()
@@ -141,6 +142,7 @@ def Confrim ():
         if add_product(username=session['username'],customer_name=CustomerName, select_product=n['Product_Name'], price=n['Price'], quantity=n['Product_Quantity'],order_id=order_id,cost=cost*n['Product_Quantity'],net_price=n['NetPrice']):
             pass
         else:
+            conn = psycopg2.connect(os.environ["conn_str"])
             cursor=conn.cursor()
             cursor.execute(f'''
                             DELETE FROM {session['username']}_ALL_DATA
@@ -159,6 +161,7 @@ def Confrim ():
 
 # Cost capture
 def CostCapture(product):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                    SELECT COST_PRICE
@@ -170,7 +173,7 @@ def CostCapture(product):
 # Add order details on database
 
 def add_product(username,customer_name,select_product,price,quantity,order_id,cost,net_price):
-    conn = database.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     current_date_time = datetime.now()
     try:
@@ -180,7 +183,7 @@ def add_product(username,customer_name,select_product,price,quantity,order_id,co
                         WHERE PRODUCT_NAME = '{select_product}'; ''')
         conn.commit()
     except:
-        conn=database.connect(conn_str)
+        conn = psycopg2.connect(os.environ["conn_str"])
         cursor=conn.cursor()
         cursor.execute(f'''
                        DELETE FROM HARSH20_ALL_DATA
@@ -205,6 +208,7 @@ def generate_order_id():
 # Edit products list in database
 @app.route('/edit_product')
 def edit_product_list():
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     cursor.execute(f''' SELECT PRODUCT_NAME FROM {session['username']}_PRODUCT_LIST ''')
     result = cursor.fetchall()
@@ -236,6 +240,7 @@ def save_changes():
         return edit(product,new_val,edit_type)
 
 def edit(product,new_value,selected_type):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     if selected_type == 'PRODUCT_TYPE'or selected_type=='PRODUCT_ID' or selected_type=='PRODUCT_NAME':
                 cursor.execute(f''' UPDATE {session['username']}_PRODUCT_LIST
@@ -254,7 +259,7 @@ def edit(product,new_value,selected_type):
 # My Products
 @app.route('/My_Products')
 def My_Products():
-    conn=database.connect(conn_str)
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''SELECT * FROM {session['username']}_PRODUCT_LIST''')
     all_data=cursor.fetchall()
@@ -278,6 +283,7 @@ def MonthSell():
 
 
 def Hist(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                    SELECT ORDER_NAME,SUM(PRICE)
@@ -294,6 +300,7 @@ def Hist(username,month,year):
 
 
 def lineChart(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     labels=[]
     values=[]
@@ -314,6 +321,7 @@ def lineChart(username,month,year):
 
 
 def Total_Orders(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     TotalData=[]
     query = f''' SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE EXTRACT(MONTH FROM DATE )= {month} AND EXTRACT(YEAR FROM DATE)= {year} '''
@@ -327,6 +335,7 @@ def Total_Orders(username,month,year):
     return TotalData
 
 def Pie(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
     SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS INTEGER)-CAST(SUM(COST) AS INTEGER)
@@ -338,6 +347,7 @@ def Pie(username,month,year):
     return [list(d.keys()),list(d.values())]
 
 def NumOrders(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
     SELECT ORDER_NAME,COUNT(ORDER_ID)
@@ -348,6 +358,7 @@ def NumOrders(username,month,year):
     return [list(d.keys()),list(d.values())]
 
 def NumberOrders(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
     SELECT COUNT(DISTINCT(ORDER_ID))
@@ -356,6 +367,7 @@ def NumberOrders(username,month,year):
     return cursor.fetchall()[0][0]
 
 def RevPro(username,month,year):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
     SELECT SUM(PRICE)
@@ -380,6 +392,7 @@ def add_new_product():
             Discount=request.form['Discount']
             CostPrice=request.form['CostPrice']
             ProductType=request.form['ProductType']
+            conn = psycopg2.connect(os.environ["conn_str"])
             cursor=conn.cursor()
             cursor.execute(f'''
                             INSERT INTO {session['username']}_PRODUCT_LIST
@@ -434,6 +447,7 @@ def dash():
     return render_template('Dashboard.html',Title='TODAY SELL DASHBOARD',Hist_labels=Hist[0],Hist_values=Hist[1],LineChart_labels=line_chart[0],LineChart_values=line_chart[1],PieChart1_labels=pie1[0],PieChart1_values= pie1[1],PieChart2_labels=pie2[0],PieChart2_values=pie2[1],Total_Revenue=Total_Revenue,Total_Cost=Total_Cost,Total_Orders=Total_Orders,Total_Profit=round(Total_Profit,2),Orders=orders)
 
 def PieOne(username,date):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT ORDER_NAME,CAST(SUM(NET_PRICE) AS FLOAT)-CAST(SUM(COST) AS FLOAT)
@@ -445,6 +459,7 @@ def PieOne(username,date):
     return [list(d.keys()),list(d.values())]
 
 def PieTwo(username,date):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT ORDER_NAME,COUNT(ORDER_ID)
@@ -455,6 +470,7 @@ def PieTwo(username,date):
     return [list(d.keys()),list(d.values())]
 
 def TodayNumberOrders(username,date):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT COUNT(DISTINCT(ORDER_ID))
@@ -463,6 +479,7 @@ def TodayNumberOrders(username,date):
     return cursor.fetchall()[0][0]
 
 def TodayRevPro(username,date):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT SUM(NET_PRICE)
@@ -478,6 +495,7 @@ def TodayRevPro(username,date):
 
 # Capture values for linechart from database
 def today_sell_linechart(username,date,start_time='00:00:00',end_time='23:00:00',time_gap=1):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     Time=[]
     Sell=[]
@@ -513,6 +531,7 @@ def today_sell_linechart(username,date,start_time='00:00:00',end_time='23:00:00'
 
 
 def Orders(username,date):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     Orders=[]
     query = f'''SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE DATE = '{date}' '''
@@ -528,6 +547,7 @@ def Orders(username,date):
 def TopSelling_Product (username,date):
     labels=[]
     values=[]
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f''' SELECT order_name,SUM(NET_PRICE) AS Total_Price
                         FROM {username}_all_data
@@ -559,6 +579,7 @@ def Track():
     if request.method!='POST':
         return render_template('TrackOrder.html')
     order_id=request.form['OrderId']
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     cursor.execute(f'''
                     SELECT * FROM {session['username']}_ALL_DATA
