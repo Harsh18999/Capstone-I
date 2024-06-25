@@ -162,15 +162,22 @@ def CostCapture(product):
 # Add order details on database
 
 def add_product(username,customer_name,select_product,price,quantity,order_id,cost,net_price):
-    conn = database.connect(os.environ["conn_str"])
-    cursor = conn.cursor()
     current_date_time = datetime.now()
     try:
+        conn = database.connect(os.environ["conn_str"])
+        cursor = conn.cursor()
         cursor.execute(f'''
                         UPDATE {username}_PRODUCT_LIST
                         SET QUANTITY = QUANTITY-{quantity}
                         WHERE PRODUCT_NAME = '{select_product}'; ''')
         conn.commit()
+        cursor.execute(f'''
+                    INSERT INTO {username}_ALL_DATA(CUSTOMER_NAME, ORDER_NAME, PRICE, DATE, TIME, ORDER_ID,QUANTITY,COST,NET_PRICE) 
+                    VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s)
+                    ''', (customer_name, select_product, price, current_date_time.date(), current_date_time.strftime("%I:%M %p"),order_id,quantity,cost,net_price))
+        conn.commit()
+        conn.close()
+        return True
     except:
         conn = database.connect(os.environ["conn_str"])
         cursor=con.cursor()
@@ -180,13 +187,6 @@ def add_product(username,customer_name,select_product,price,quantity,order_id,co
                        ''')
         conn.commit()
         return False
-    conn = database.connect(os.environ["conn_str"])
-    cursor.execute(f'''
-                             INSERT INTO {username}_ALL_DATA(CUSTOMER_NAME, ORDER_NAME, PRICE, DATE, TIME, ORDER_ID,QUANTITY,COST,NET_PRICE) 
-                             VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s)
-                             ''', (customer_name, select_product, price, current_date_time.date(), current_date_time.strftime("%I:%M %p"),order_id,quantity,cost,net_price))
-    conn.commit()
-    return True
 
 def generate_order_id():
     
