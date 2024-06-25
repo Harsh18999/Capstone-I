@@ -3,8 +3,8 @@ import bill_functions
 from datetime import datetime
 import login_functions
 import calendar
-from datetime import datetime
 import random
+import os
 import psycopg2 
 
 
