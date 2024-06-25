@@ -74,10 +74,10 @@
       <br>
       <br>
       <div>
-        <div class="content" style="margin-top: 40px;">
+        <div class="content" style="margin-top: 20px;  width: 400px;">
             {% if not customer_details %}
             <form action="{{ url_for('add_new_order') }}" method="post">
-              <h2>Select Product</h2>
+              <h2 style="margin-left: 27%;">Select Product</h2>
               <div class="field">
                 <label for="select_product" class="fa fa-user"></label>
                 <select name="select_product" id="select_product">
@@ -132,13 +132,14 @@
           <td></td>
         </tr>
       </table>
-
-      <form action="/add_new_order/next">
-          <button type="submit">Next</button>
-      </form>
-      <form action="/add_new_order/reset" method="post">
-          <button type="submit">Reset</button>
-      </form>
+      <div style="display: flex;gap: 50px;">
+        <form action="/add_new_order/next" method="post">
+          <button style="width: 100px;" type="submit">Next</button>
+        </form>
+        <form action="/add_new_order/reset" method="post">
+          <button style="width: 100px;" type="submit">Reset</button>
+        </form>
+      </div>
     </main>
     <!-- End Main -->
   </div>
