@@ -91,7 +91,7 @@ def valid_email(mail):
 def new_user_tables(username):
     cursor.execute("")
 def password_and_username_validator(password,username):
-
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     try:
         cursor.execute(f''' SELECT PASSWORD FROM USERS WHERE USERNAME='{username}' ''')
