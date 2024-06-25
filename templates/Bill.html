@@ -79,6 +79,10 @@
       <form action="/add_new_order/next/bill/Confrim" method="post">
         <label for="customer_name"></label>
         <input style="display: none;" type="text" value="{{customer_name}}" id="customer_name" name="customer_name">
+        <label for="customer_email"></label>
+        <input style="display: none;" type="email" value="{{customer_email}}" id="customer_email" name="customer_email">
+        <label for="bill">Send bill to  customer also..</label>
+        <input type="checkbox" id="bill" name="bill" value="yes"><br><br>
         <button type="submit">Confrim Order</button>
       </form>
       <form action="/add_new_order">

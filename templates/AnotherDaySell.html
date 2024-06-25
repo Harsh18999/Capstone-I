@@ -1,79 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
-    <style>
-    #upper-side {
-    padding: 2em;
-    background :linear-gradient(to right , #e31c06,#effcd5);;
-    display: block;
-    color: #fff;
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
-  }
-  #card{
-    padding-left: 30%;
-    padding-right: 30%;
-  }
-  #checkmark {
-    font-weight: lighter;
-    fill: #fff;
-    margin: -3.5em auto auto 20px;
-  }
-  #status {
-    font-weight: lighter;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1em;
-    margin-top: -.2em;
-    margin-bottom: 0;
-  }
-  #lower-side {
-    padding: 2em 2em 5em 2em;
-    background :linear-gradient(to right , #e31c06,#effcd5);
-    display: block;
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-  #message {
-    margin-top: -.5em;
-    color: #ffffff;
-    letter-spacing: 1px;
-  }
-  #contBtn {
-    position: relative;
-    top: 1.5em;
-    text-decoration: none;
-    background :linear-gradient(to right , #e31c06,#effcd5);
-    color: #fff;
-    margin: auto;
-    padding: .8em 3em;
-    -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
-    -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
-    box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.21);
-    border-radius: 25px;
-    -webkit-transition: all .4s ease;
-          -moz-transition: all .4s ease;
-          -o-transition: all .4s ease;
-          transition: all .4s ease;
-  }
-  #contBtn:hover {
-    -webkit-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
-    -moz-box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
-    box-shadow: 0px 15px 30px rgba(50, 50, 50, 0.41);
-    -webkit-transition: all .4s ease;
-          -moz-transition: all .4s ease;
-          -o-transition: all .4s ease;
-          transition: all .4s ease;
-  }
-    </style>
-</head>
-<body style="background:linear-gradient(to right , #e31c06,#effcd5) ;">
-  <!DOCTYPE html>
-<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -87,9 +13,27 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+
   </head>
   <body>
     <div class="grid-container">
+
+      <!-- Header -->
+      <!-- <header class="header">
+        <div class="menu-icon" onclick="openSidebar()">
+          <span class="material-icons-outlined">menu</span>
+        </div>
+        <div class="header-left">
+          <span class="material-icons-outlined">search</span>
+        </div>
+        <div class="header-right">
+          <span class="material-icons-outlined">notifications</span>
+          <span class="material-icons-outlined">email</span>
+          <span class="material-icons-outlined">account_circle</span>
+        </div>
+      </header> -->
+      <!-- End Header -->
 
       <!-- Sidebar -->
       <aside id="sidebar">
@@ -112,7 +56,7 @@
             </a>
           </li>
           <li class="sidebar-list-item">
-            <a href="#">
+            <a href="/Track_Order">
               <span class="material-icons-outlined" >category</span> Track Order
             </a>
           </li>
@@ -132,7 +76,7 @@
             </a>
           </li>
           <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="#">
               <span class="material-icons-outlined">settings</span> Settings
             </a>
           </li>
@@ -145,19 +89,19 @@
         <div class="main-title">
           <h2>{{ Title }}</h2>
         </div>
-        <div id='card' class="animated fadeIn">
-          <div id='upper-side'>
-              <h1 id='status'>
-              Error
-            </h1>
-          </div>
-          <div id='lower-side'>
-            <p id='message'>
-              {{Massage}}
-            </p>
-            <a href={{cont}} id="contBtn">Continue</a>
-          </div> 
+        <div class="content" style="margin-left: 23%; margin-top: 50px; width: 500px;">
+            <form action="/another_day_sell" method="post">
+                <h2 style="padding-left: 30%;">Enter Date</h2>
+                <div class="field">
+                   <label for="date">Enter date in YYYY-MM-DD format:</label>
+                   <input type="date" name="date" id="date"  value="" required>
+                </div>
+                <br><br>
+                <button type="submit" value="submit">Submit</button>
+            </form>
         </div>
+        
+        
         
       </main>
       <!-- End Main -->
@@ -188,7 +132,4 @@ function closeSidebar() {
 }
     </script>
   </body>
-</html>
-    
-</body>
 </html>

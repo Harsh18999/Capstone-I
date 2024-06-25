@@ -37,7 +37,7 @@
       <aside id="sidebar">
         <div class="sidebar-title">
           <div class="sidebar-brand">
-            <span class="material-icons-outlined">shopping_cart</span> STORE
+            <a class="material-icons-outlined" >shopping_cart</a> STORE
           </div>
           <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
         </div>
@@ -86,6 +86,15 @@
       <main class="main-container">
         <div class="main-title">
           <h2>{{ Title }}</h2>
+          {% if Title=='TODAY SELL DASHBOARD' %}
+          <form action="/another_day_sell" method="get">
+              <button style="max-width: fit-content; margin-top: 10px;" type="submit">Track Specific Day Sell</button>
+          </form>
+          {% elif Title=='CURRENT MONTH SELL DASHBOARD' %}
+          <form action="/another_month_sell" method="get">
+            <button style="max-width: fit-content; margin-top: 10px;" type="submit">Track Specific Month Sell</button>
+        </form>
+        {% endif %}
         </div>
 
         <div class="main-cards">
