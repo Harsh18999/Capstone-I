@@ -149,7 +149,7 @@ def Confrim ():
             conn.commit()
             return Warning(massage=f'Please check the stocks of {n["Product_Name"]}',cont='/My_Products')
     if billStatus=='yes':
-        if bill_functions.send_bill(customer_email=CustomerEmail,customer_name=CustomerName,items=session['bill_products']):
+        if bill_functions.send_bill(customer_email=CustomerEmail,customer_name=CustomerName,items=session['bill_products'],order_id=order_id):
             pass
         else:
             return render_template('Warning.html',cont='/add_new_order/next')
