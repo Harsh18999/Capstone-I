@@ -3,10 +3,9 @@ import bill_functions
 from datetime import datetime
 import login_functions
 import calendar
-import pandas as pd
 from datetime import datetime
 import random
-import psycopg2 as database
+import psycopg2 
 
 
 app = Flask(__name__)
@@ -403,33 +402,7 @@ def add_new_product():
             return render_template('AddNewProduct.html')
     else:
         return render_template('Notification.html',Title='Please Log-in',Massage='Please login to access our services',cont='/')
-
-#path_to_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#pdfkit_config = pdfkit.configuration(wkhtmltopdf=path_to_wkhtmltopdf)
-
-# @app.route('/download_pdf', methods=['GET'])
-# def download_pdf():
     
-#     rendered_html = render_template('index.html')
-    
-#     # Create a temporary HTML file
-#     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as temp_html:
-#         temp_html.write(rendered_html.encode('utf-8'))
-#         temp_html_path = temp_html.name
-    
-#     # Generate the PDF from the HTML file
-#     pdf = pdfkit.from_file(temp_html_path,False, configuration=pdfkit_config)
-    
-#     # Remove the temporary HTML file
-#     os.remove(temp_html_path)
-    
-#     # Save the PDF to a file
-#     pdf_path = 'output.pdf'
-#     with open(pdf_path, 'wb') as f:
-#         f.write(pdf)
-    
-#     # Send the PDF file as a response
-#     return send_file(pdf_path, as_attachment=True)
 
 @app.route('/Dashboard')
 def dash():
@@ -514,6 +487,8 @@ def today_sell_linechart(username,date,start_time='00:00:00',end_time='23:00:00'
         else:
             pt=str(time)
             nt=str(time+time_gap)
+        conn = psycopg2.connect(os.environ["conn_str"])
+        cursor=conn.cursor()
         cursor.execute(f''' SELECT SUM(Price) AS Total_Price
                             FROM {username}_all_data
                             WHERE date = '{date}' AND time BETWEEN '{str(pt)+str(':00:00')}' AND '{str(nt)+str(':00:00')}';
