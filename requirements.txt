@@ -6,4 +6,5 @@ Pillow==10.3.0
 psycopg2==2.9.9
 psycopg2_binary==2.9.9
 reportlab==4.0.7
+smtplib
 Gunicorn
