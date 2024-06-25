@@ -4,6 +4,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import base64
 from io import BytesIO
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import os
 from flask import Flask,render_template
 
 def create_invoice(bill_info,items):
@@ -85,7 +91,7 @@ def create_invoice(bill_info,items):
     c.save()
     return buffer.getvalue()
 
-def main(items,customer_name,email,order_id='',date=datetime.datetime.now().date(),time=datetime.datetime.now().time().strftime("%H:%M:%S")):
+def main(items,customer_name,email,order_id='',date=datetime.datetime.now().date(),time=datetime.datetime.now().time().strftime("%H:%M:%S"),base=False):
     bill_information = {
     "header": "SHOAP MANAGEMENT SYSTEM",
     "address": [
@@ -111,9 +117,62 @@ def main(items,customer_name,email,order_id='',date=datetime.datetime.now().date
         # Convert binary data to base64
     pdf_base64 = base64.b64encode(pdf_contents).decode("utf-8")
 
+    if base==True:
+        return pdf_base64
+
         # Embed base64-encoded PDF content using iframe
 
     if order_id!='' :
         return render_template('Bill.html',pdf=pdf_base64,customer_name=customer_name,order_id=True)
     
-    return render_template('Bill.html',pdf=pdf_base64,customer_name=customer_name)
+    return render_template('Bill.html',pdf=pdf_base64,customer_name=customer_name,customer_email=email)
+
+def send_email_with_invoice(to_address, subject, body, base, from_address="kumarh18999@gmail.com", password="lnip xkba bauv ctsp", smtp_server="smtp.gmail.com", smtp_port=465):
+    # Create the email header
+    msg = MIMEMultipart()
+    msg['From'] = from_address
+    msg['To'] = to_address
+    msg['Subject'] = subject
+    
+    # Attach the email body
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Open the PDF file in binary mode
+        # Create a MIMEBase object for the attachment
+    pdf_bytes = base64.b64decode(base)
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(pdf_bytes)
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f"attachment; filename= Invoice.pdf ")
+
+        # Attach the MIMEBase object to the email message
+    msg.attach(part)
+
+    # Create the SMTP server connection with SSL
+    server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+    server.login(from_address, password)
+    server.sendmail(from_address, to_address, msg.as_string())
+    server.quit()
+    return True
+
+def send_bill(customer_name='HARSH Kumar',customer_email='kumarh18909@gmail.com',items=[]):
+    base=main(customer_name=customer_name,email='kumarh18909@gmail.com',base=True,items=items)
+    body=f'''
+{customer_name},
+
+I hope this message finds you well.
+
+Please find attached your invoice for the recent purchase/order with Shop Management System. We appreciate your value you as a customer.
+
+Invoice Date: {datetime.datetime.now().date()}
+
+
+If you have any questions or need further clarification regarding the invoice, please do not hesitate to contact us at kumarh18909@gmail.com .
+
+Payment Instruction: On Time
+
+Thank you for your prompt attention to this matter. We look forward to serving you again.
+'''
+    if send_email_with_invoice(to_address=customer_email,subject='Invoice' ,body=body,base=base):
+        return True
+    return False
