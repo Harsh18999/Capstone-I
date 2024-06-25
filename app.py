@@ -174,7 +174,7 @@ def add_product(username,customer_name,select_product,price,quantity,order_id,co
         cursor.execute(f'''
                     INSERT INTO {username}_ALL_DATA(CUSTOMER_NAME, ORDER_NAME, PRICE, DATE, TIME, ORDER_ID,QUANTITY,COST,NET_PRICE) 
                     VALUES (%s, %s, %s, %s, %s,%s,%s,%s,%s)
-                    ''', (customer_name, select_product, price, current_date_time.date(), current_date_time.strftime("%I:%M %p"),order_id,quantity,cost,net_price))
+                    ''', (customer_name, select_product, price, current_date_time.date(), current_date_time.time(),order_id,quantity,cost,net_price))
         conn.commit()
         conn.close()
         return True
