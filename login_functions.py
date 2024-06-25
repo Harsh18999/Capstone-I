@@ -9,6 +9,7 @@ cursor=conn.cursor()
 alphabet_list = [chr(i) for i in range(ord('a'), ord('z')+1)]
 def password_and_username_validator(password,email,username):
     def password_validator(password,email):
+        conn = psycopg2.connect(os.environ["conn_str"])
         cursor.execute(f''' SELECT PASSWORD FROM USERS WHERE EMAIL='{email}' ''')
         res=cursor.fetchall()
         for n in res:
@@ -18,6 +19,7 @@ def password_and_username_validator(password,email,username):
             else:
                 False
     def username_validator(username,email):
+        conn = psycopg2.connect(os.environ["conn_str"])
         cursor.execute(f''' SELECT USERNAME FROM USERS WHERE EMAIL='{email}' ''')
         res=cursor.fetchall()
         for n in res:
@@ -36,6 +38,7 @@ def password_and_username_validator(password,email,username):
 
 
 def username_exist(username):
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor.execute(f'''SELECT USERNAME FROM USERS''')
     res=cursor.fetchall()
     users=[]
