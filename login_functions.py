@@ -4,12 +4,14 @@ import re
 import random
 import base64
 import smtplib
-conn = psycopg2.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
+conn = psycopg2.connect(os.environ["conn_str"])
 cursor=conn.cursor()
 
 alphabet_list = [chr(i) for i in range(ord('a'), ord('z')+1)]
 def password_and_username_validator(password,email,username):
     def password_validator(password,email):
+        conn = psycopg2.connect(os.environ["conn_str"])
+        cursor=conn.cursor()
         cursor.execute(f''' SELECT PASSWORD FROM USERS WHERE EMAIL='{email}' ''')
         res=cursor.fetchall()
         for n in res:
@@ -19,6 +21,8 @@ def password_and_username_validator(password,email,username):
             else:
                 False
     def username_validator(username,email):
+        conn = psycopg2.connect(os.environ["conn_str"])
+        cursor=conn.cursor()
         cursor.execute(f''' SELECT USERNAME FROM USERS WHERE EMAIL='{email}' ''')
         res=cursor.fetchall()
         for n in res:
@@ -46,7 +50,7 @@ def valid_email(mail):
 
 
 def password_and_username_validator(password,username):
-
+    conn = psycopg2.connect(os.environ["conn_str"])
     cursor = conn.cursor()
     try:
         cursor.execute(f''' SELECT PASSWORD FROM USERS WHERE USERNAME='{username}' ''')
@@ -82,6 +86,8 @@ def password_and_username_validator(password,username):
 # session['bill_products'].append({"description": select_product, "quantity": quantity, "unit_price": price/quantity ,"amount": price,'discount':'5%'})
 
 def username_exist(username):
+    conn = psycopg2.connect(os.environ["conn_str"])
+    cursor = conn.cursor()
     cursor.execute(f'''SELECT * FROM USERS
                        WHERE USERNAME= '{username}' ''')
     res=cursor.fetchall()
@@ -91,6 +97,8 @@ def username_exist(username):
         return False
     
 def email_exist(email):
+    conn = psycopg2.connect(os.environ["conn_str"])
+    cursor = conn.cursor()
     cursor.execute(f'''
     SELECT * FROM USERS
     WHERE EMAIL='{email}' ''')
@@ -99,6 +107,8 @@ def email_exist(email):
     return False
 
 def create_tables(username):
+    conn = psycopg2.connect(os.environ["conn_str"])
+    cursor = conn.cursor()
     cursor.execute(f'''
     CREATE TABLE {username}_ALL_DATA (
         CUSTOMER_NAME VARCHAR(100),
@@ -147,7 +157,8 @@ Thank You ..
         server.sendmail("kumarh18999@gmail",{mail},msg=f"Subject: {subject}\n\n{message}")
         server.quit()
     def database(name,user_name,mail,password):
-
+        conn = psycopg2.connect(os.environ["conn_str"])
+        cursor = conn.cursor()
         cursor.execute('''INSERT INTO USERS (USERNAME, PASSWORD, NAME, EMAIL) VALUES (%s, %s, %s, %s)''',
                        (user_name, password, name, mail))
         conn.commit()
