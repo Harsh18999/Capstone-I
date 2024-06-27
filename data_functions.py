@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import streamlit_shadcn_ui as ui
 #add new product in shoap by owner
 
-conn = psycopg2.connect("postgresql://MYPROJECT20.COM:ZNfo9DxeFp-WoNzpTDJPmg@almond-heron-1166.j77.cockroachlabs.cloud:26257/project?sslmode=verify-full")
+conn = psycopg2.connect(os.environ["conn_str"])
 cursor=conn.cursor()
 
 def add_product(username):
