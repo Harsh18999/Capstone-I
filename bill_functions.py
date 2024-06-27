@@ -155,8 +155,8 @@ def send_email_with_invoice(to_address, subject, body, base, from_address="kumar
     server.quit()
     return True
 
-def send_bill(customer_name='HARSH Kumar',customer_email='kumarh18909@gmail.com',items=[],order_id=''):
-    base=main(customer_name=customer_name,email='kumarh18909@gmail.com',base=True,items=items,order_id=order_id)
+def send_bill(customer_name='HARSH Kumar',customer_email='kumarh18909@gmail.com',items=[]):
+    base=main(customer_name=customer_name,email='kumarh18909@gmail.com',base=True,items=items)
     body=f'''
 {customer_name},
 
@@ -164,12 +164,14 @@ I hope this message finds you well.
 
 Please find attached your invoice for the recent purchase/order with Shop Management System. We appreciate your value you as a customer.
 
-Invoice Date: {datetime.datetime.now().date()}
 
+Invoice Date: {datetime.datetime.now().date()}
 
 If you have any questions or need further clarification regarding the invoice, please do not hesitate to contact us at kumarh18909@gmail.com .
 
-Payment Instruction: On Time
+Payment Instructions: On Time
+
+We kindly request that the payment be made by the due date mentioned above to ensure timely processing. 
 
 Thank you for your prompt attention to this matter. We look forward to serving you again.
 '''
