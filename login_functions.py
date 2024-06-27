@@ -1,6 +1,7 @@
 import random 
 import psycopg2
 import re
+import os
 import random
 import base64
 import smtplib
