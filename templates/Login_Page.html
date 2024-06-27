@@ -14,7 +14,7 @@
   <body>
     <div class="container" id="container">
       <div class="form-container sign-up">
-        <form>
+        <form action="/Signup" method="post">
           <h1>Create Account</h1>
           <div class="social-icons">
             <a href="https://myaccount.google.com/" class="icon"
@@ -27,9 +27,12 @@
             ></a>
           </div>
           <span>or use your email for registeration</span>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
+          <label for="Name"></label>
+          <input type="text" placeholder="Name" id="Name" name="Name" />
+          <label for="username"></label>
+          <input type="text" placeholder="Username" id="username" name="username" />
+          <label for="email"></label>
+          <input type="email" placeholder="Email" name="email" id="email"/>
           <button>Sign Up</button>
         </form>
       </div>
