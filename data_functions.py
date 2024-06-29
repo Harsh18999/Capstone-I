@@ -1,7 +1,6 @@
 import streamlit as st
 import psycopg2
 import login_functions
-import pandas as pd
 from datetime import datetime 
 import matplotlib.pyplot as plt
 import streamlit_shadcn_ui as ui
