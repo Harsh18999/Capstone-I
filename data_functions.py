@@ -2,8 +2,6 @@ import streamlit as st
 import psycopg2
 import login_functions
 from datetime import datetime 
-import matplotlib.pyplot as plt
-import streamlit_shadcn_ui as ui
 #add new product in shoap by owner
 
 conn = psycopg2.connect(os.environ["conn_str"])
