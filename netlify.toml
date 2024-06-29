@@ -1,5 +1,5 @@
 [build]
-  command = "pip install -r requirements.txt && python app.py "  # Adjust this to your actual build command
+  command = "pip install -r requirements.txt "  # Adjust this to your actual build command
   publish = "build"  
 [[redirects]]
   from = "/*"
