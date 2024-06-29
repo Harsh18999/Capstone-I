@@ -1,0 +1,7 @@
+[build]
+  command = "pip install -r requirements.txt && python app.py"  # Adjust this to your actual build command
+  publish = "build"  
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
