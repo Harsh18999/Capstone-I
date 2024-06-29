@@ -1,5 +1,4 @@
 Flask==3.0.3
-pandas==2.2.2
 pdfkit==1.0.0
 Pillow==10.3.0
 psycopg2==2.9.9
