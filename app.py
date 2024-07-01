@@ -307,7 +307,7 @@ def MonthSell():
     revpro=RevPro(session['username'],month=month,year=year)
     Total_Revenue=round(revpro[0],2)
     Total_Cost=round(revpro[1],2)
-    return render_template('Dashboard.html',Title='CURRENT MONTH SELL DASHBOARD',Orders=Total_Orders(session['username'],month=month,year=year),Hist_labels=HistRes[0],Hist_values=HistRes[1],LineChart_labels=LineChart[0],LineChart_values=LineChart[1],PieChart1_labels=PieChart[0],PieChart1_values=PieChart[1],PieChart2_labels=OrderDist[0],PieChart2_values=OrderDist[1],Total_Orders=NumberOfOrders,Total_Revenue=Total_Revenue,Total_Cost=Total_Cost,Total_Profit=float(Total_Revenue)-float(Total_Cost))
+    return render_template('Dashboard.html',Title='CURRENT MONTH SELL DASHBOARD',Orders=Total_Orders(session['username'],month=month,year=year,Hist_labels=HistRes[0],Hist_values=HistRes[1],LineChart_labels=LineChart[0],LineChart_values=LineChart[1],PieChart1_labels=PieChart[0],PieChart1_values=PieChart[1],PieChart2_labels=OrderDist[0],PieChart2_values=OrderDist[1],Total_Orders=NumberOfOrders,Total_Revenue=Total_Revenue,Total_Cost=Total_Cost,Total_Profit=float(Total_Revenue)-float(Total_Cost))
 
 
 def Hist(username,month,year):
