@@ -3,4 +3,5 @@ pdfkit==1.0.0
 Pillow==10.3.0
 psycopg2_binary==2.9.9
 reportlab==4.0.7
+werkzeug==2.2.2
 Gunicorn
