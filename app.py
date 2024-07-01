@@ -323,7 +323,7 @@ def Hist(username,month,year):
     for n in cursor.fetchall():
         labels.append(n[0])
         values.append(n[1])
-    return [labels,values]
+    return [list(labels),list(values)]
 
 
 def lineChart(username,month,year):
