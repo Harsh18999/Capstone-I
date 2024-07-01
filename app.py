@@ -3,7 +3,6 @@ import bill_functions
 from datetime import datetime
 import login_functions
 import calendar
-from datetime import datetime
 import random
 import psycopg2
 import os
@@ -335,6 +334,8 @@ def lineChart(username,month,year):
     date=f'{year}-{month}-'
     days=calendar.monthrange(year,month)[1]
     for i in range(1,days+1):
+        conn = psycopg2.connect(os.environ["conn_str"])
+        cursor=conn.cursor()
         cursor.execute(f'''
                         SELECT SUM(price)
                         FROM {username}_ALL_DATA
@@ -347,19 +348,17 @@ def lineChart(username,month,year):
 
     return [labels,values]
 
-
 def Total_Orders(username,month,year):
     conn = psycopg2.connect(os.environ["conn_str"])
     cursor=conn.cursor()
     TotalData=[]
-    query = f''' SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE EXTRACT(MONTH FROM DATE )= {month} AND EXTRACT(YEAR FROM DATE)= {year} '''
+    query = f''' SELECT "customer_name","order_name","price","order_id","date","time","quantity" FROM {username}_ALL_DATA WHERE EXTRACT(MONTH FROM DATE ) = {month} AND EXTRACT(YEAR FROM DATE)= {year} '''
     cursor.execute(query)
     result=cursor.fetchall()
     for n in result:
         n=list(n)
         dic={"CUSTOMER_NAME":n[0],"ORDER_NAME":n[1],"PRICE":n[2],"ORDER_ID":n[3],"DATE":n[4],"TIME":n[5],"QUANTITY":n[6]}
         TotalData.append(dic)
-
     return TotalData
 
 def Pie(username,month,year):
