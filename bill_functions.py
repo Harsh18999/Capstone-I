@@ -127,7 +127,7 @@ def main(items,customer_name,email,order_id='',date=datetime.datetime.now().date
     
     return render_template('Bill.html',pdf=pdf_base64,customer_name=customer_name,customer_email=email)
 
-def send_email_with_invoice(to_address, subject, body, base, from_address="kumarh18999@gmail.com", password="lnip xkba bauv ctsp", smtp_server="smtp.gmail.com", smtp_port=465):
+def send_email_with_invoice(to_address, subject, body, base, from_address="kumarh18999@gmail.com", password="hkqt csvi zwhi jvyy", smtp_server="smtp.gmail.com", smtp_port=465):
     # Create the email header
     msg = MIMEMultipart()
     msg['From'] = from_address
