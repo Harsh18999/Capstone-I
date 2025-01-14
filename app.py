@@ -408,7 +408,7 @@ def RevPro(username,month,year):
     cost=cursor.fetchall()[0][0]
     return [revenue,cost]
 
-@app.route('/Add New Product',methods=['GET','POST'])
+@app.route('/Add_New_Product', methods=['GET', 'POST'])
 def add_new_product():
     if 'username' in session:
         if request.method=='POST':
