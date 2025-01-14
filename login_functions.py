@@ -154,7 +154,7 @@ Thank You ..
 '''
         server=smtplib.SMTP("smtp.gmail.com",587)
         server.starttls()
-        server.login("kumarh18999@gmail.com",password="lnip xkba bauv ctsp")
+        server.login("kumarh18999@gmail.com",password="hkqt csvi zwhi jvyy")
         server.sendmail("kumarh18999@gmail",{mail},msg=f"Subject: {subject}\n\n{message}")
         server.quit()
     def database(name,user_name,mail,password):
